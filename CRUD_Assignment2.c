@@ -14,13 +14,19 @@ void createUser(){
     User u;
     printf("Enter ID: ");
     scanf("%d", &u.id);
+    getchar();
     printf("Enter Name: ");
-    scanf("%s",u.name);
+    fgets(u.name, sizeof(u.name), stdin);
+    u.name[strcspn(u.name, "\n")] = '\0';
     printf("Enter Age: ");
     scanf("%d", &u.age);
 
     FILE *fp = fopen(FILENAME, "a");
-    fprintf(fp, "%d %s %d\n",u.id,u.name,u.age);
+    if (fp == NULL){
+        printf("Error: could not open file.\n");
+        return;
+    }
+    fprintf(fp, "%d|%s|%d\n",u.id,u.name,u.age);
     fclose(fp);
 
     printf("User added.\n");
@@ -28,11 +34,15 @@ void createUser(){
 
 void readUsers(){
     FILE *fp = fopen(FILENAME, "r");
+    if (fp == NULL){
+        printf("Error: could not open file.\n");
+        return;
+    }
     User u;
 
-    printf("\nID    Name       Age\n");
-    while (fscanf(fp, "%d %s %d", &u.id, u.name, &u.age) == 3) {
-        printf("%-5d %-10s %d\n", u.id, u.name, u.age);
+    printf("\nID    Name            Age\n");
+    while (fscanf(fp, "%d|%49[^|]|%d\n", &u.id, u.name, &u.age) == 3) {
+        printf("%-5d %-15s %d\n", u.id, u.name, u.age);
     }
     fclose(fp);
 }
@@ -41,25 +51,43 @@ void updateUser(){
     int targetId;
     printf("Enter ID to update: ");
     scanf("%d", &targetId);
+    getchar();
 
     FILE *fp = fopen(FILENAME, "r");
+    if (fp == NULL){
+        printf("Error: could not open file.\n");
+        return;
+    }
     FILE *temp = fopen("temp.txt", "w");
+    if (temp == NULL){
+        printf("Error: could not open temp file.\n");
+        fclose(fp);
+        return;
+    }
     User u;
 
-    while (fscanf(fp, "%d %s %d", &u.id, u.name, &u.age) == 3){
+    while (fscanf(fp, "%d|%49[^|]|%d\n", &u.id, u.name, &u.age) == 3){
         if (u.id == targetId){
             printf("Enter new Name: ");
-            scanf("%s", u.name);
+            fgets(u.name, sizeof(u.name), stdin);
+            u.name[strcspn(u.name, "\n")] = '\0';
             printf("Enter new Age: ");
             scanf("%d", &u.age);
+            getchar();
         }
-        fprintf(temp, "%d %s %d\n", u.id, u.name, u.age);
+        fprintf(temp, "%d|%s|%d\n", u.id, u.name, u.age);
     }
 
     fclose(fp);
     fclose(temp);
-    remove(FILENAME);
-    rename("temp.txt", FILENAME);
+    if (remove(FILENAME) != 0){
+        printf("Error: could not remove old file.\n");
+        return;
+    }
+    if (rename("temp.txt", FILENAME) != 0){
+        printf("Error: could not rename temp file.\n");
+        return;
+    }
 
     printf("User updated.\n");
 }
@@ -69,18 +97,33 @@ void deleteUser(){
     printf("Enter ID to delete: ");
     scanf("%d", &targetId);
     FILE *fp = fopen(FILENAME, "r");
+    if (fp == NULL){
+        printf("Error: could not open file.\n");
+        return;
+    }
     FILE *temp = fopen("temp.txt", "w");
+    if (temp == NULL){
+        printf("Error: could not open temp file.\n");
+        fclose(fp);
+        return;
+    }
     User u;
 
-    while (fscanf(fp, "%d %s %d", &u.id, u.name, &u.age) == 3){
+    while (fscanf(fp, "%d|%49[^|]|%d\n", &u.id, u.name, &u.age) == 3){
         if (u.id != targetId) {
-            fprintf(temp, "%d %s %d\n", u.id, u.name, u.age);
+            fprintf(temp, "%d|%s|%d\n", u.id, u.name, u.age);
         }
     }
     fclose(fp);
     fclose(temp);
-    remove(FILENAME);
-    rename("temp.txt", FILENAME);
+    if (remove(FILENAME) != 0){
+        printf("Error: could not remove old file.\n");
+        return;
+    }
+    if (rename("temp.txt", FILENAME) != 0){
+        printf("Error: could not rename temp file.\n");
+        return;
+    }
     printf("User deleted.\n");
 }
 
