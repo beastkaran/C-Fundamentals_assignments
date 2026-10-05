@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include <ctype.h> 
+#include <ctype.h>
 
 int main() {
     char expr[1000];
@@ -47,40 +47,38 @@ int main() {
         return 0;
     }
 
+    long resNums[100];
+    char resOps[100];
+    int rn = 0, ro = 0;
     int divByZero = 0;
+
+    resNums[rn++] = numbers[0];
+
     for (int j = 0; j < opCount; j++){
-        if (operators[j] == '*') {
-            numbers[j+1] = numbers[j] * numbers[j+1];
-            numbers[j] = -999999;
-            operators[j] = '#';
+        if (operators[j] == '*'){
+            resNums[rn-1] = resNums[rn-1] * numbers[j+1];
         }
         else if (operators[j] == '/'){
-            if (numbers[j+1] == 0) {
+            if (numbers[j+1] == 0){
                 divByZero = 1;
                 break;
             }
-            numbers[j+1] = numbers[j] / numbers[j+1];
-            numbers[j] = -999999;
-            operators[j] = '#';
+            resNums[rn-1] = resNums[rn-1] / numbers[j+1];
+        }
+        else {
+            resOps[ro++] = operators[j];
+            resNums[rn++] = numbers[j+1];
         }
     }
     if (divByZero){
         printf("Error: Division by zero.\n");
         return 0;
     }
-    // for + and -
-    long result = 0;
-    int started = 0;
-    for (int j = 0; j < numCount; j++){
-        if (numbers[j] == -999999) continue;
-        if (!started){
-            result = numbers[j];
-            started = 1;
-        } else{
-            char op = operators[j-1];
-            if (op == '+') result += numbers[j];
-            else if (op == '-') result -= numbers[j];
-        }
+
+    long result = resNums[0];
+    for (int j = 0; j < ro; j++){
+        if (resOps[j] == '+') result += resNums[j+1];
+        else if (resOps[j] == '-') result -= resNums[j+1];
     }
     printf("%ld\n", result);
     return 0;
