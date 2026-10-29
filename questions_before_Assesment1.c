@@ -37,6 +37,120 @@ int main(){
     return 0;
 }
 
+
+//--------------------1D_CRUD--------
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+
+void display_1d(int *arr,int *n){
+    if (arr==NULL){
+        return;
+    }
+    if(*n==0){
+        printf("no elements in array\n");
+        return;
+    }
+
+    for (int i=0;i<*n;i++){
+        printf("%d ",*(arr+i));
+    }
+    printf("\n");
+}
+
+void delete_1d(int *arr,int *n,int pos){
+    if (pos<0 || pos>=*n){
+        printf("Invalid position\n");
+        return;
+    }
+    for (int i=pos;i<*n-1;i++){
+        *(arr+i)=*(arr+i+1);
+    }
+    (*n)--;
+}
+
+void insert_1d(int **arr,int *n,int *capacity,int value,int pos){
+    if (pos<0 || pos>*n){
+        printf("Invalid position\n");
+        return;
+    }
+
+    if (*n==*capacity){
+        int *temp=realloc(*arr,(*n*2+1)*sizeof(int));
+        if (temp==NULL){
+            printf("memmory allocation failed.\n");
+            return;
+        }
+        *arr=temp;
+        *capacity=*n*2+1;
+    }
+
+
+    for (int i=*n;i>pos;i--){
+        *(*arr+i)=*(*arr+i-1);
+    }
+    *(*arr+pos)=value;
+    (*n)++;
+
+}
+
+void update_1d(int *arr,int *n,int pos,int value){
+    if (pos<0 || pos>=*n){
+        printf("Invalid position\n");
+        return;
+    }
+
+    *(arr+pos)=value;
+}
+
+
+int main(){
+    int capacity;
+    printf("Enter capacity of array=");
+    scanf("%d",&capacity);
+    int *arr=malloc(capacity*sizeof(int));
+
+    if (arr==NULL){
+        printf("Memory allocation failed\n");
+        return 1;
+    }
+    int n=0;
+    int value;
+    int pos;
+    int choice;
+
+    while (choice!=5){
+        printf("1.insert\n2.display\n3.delete\n4.update\n5.exit\nEnter your choice=");
+        scanf("%d",&choice);
+        if (choice==1){
+            printf("Enter value to insert=");
+            scanf("%d",&value);
+            printf("Enter position to insert=");
+            scanf("%d",&pos);
+            insert_1d(&arr,&n,&capacity,value,pos);
+        }
+        if (choice==2){
+            display_1d(arr,&n);
+        }
+        if (choice==3){
+            printf("enter pos to delete=");
+            scanf("%d",&pos);
+            delete_1d(arr,&n,pos);
+        }
+
+        if (choice==4){
+            printf("Enter pos to update=");
+            scanf("%d",&pos);
+            printf("Enter new value at %d=",pos);
+            scanf("%d",&value);
+            update_1d(arr,&n,pos,value);
+        }
+    }
+    
+    free(arr);
+    return 0;
+}
 //--------2D_CRUD-----------------------
 
 #include <stdio.h>
